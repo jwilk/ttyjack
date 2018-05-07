@@ -44,9 +44,9 @@ def push(s):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('command', metavar='COMMAND')
-    ap.add_argument('rest', nargs='*', help=argparse.SUPPRESS)
+    ap.add_argument('args', metavar='ARG', nargs='*')
     options = ap.parse_args()
-    cmdline = ' '.join([options.command] + options.rest)
+    cmdline = ' '.join([options.command] + options.args)
     push(' {cmd}\n'.format(cmd=cmdline))
 
 if __name__ == '__main__':

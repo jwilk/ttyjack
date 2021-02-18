@@ -25,7 +25,7 @@ install:
 - pip install pydiatra $pyflakes
 - $if_pygments pip install restructuredtext-lint pygments
 script:
-- ./tiocsti-test echo eggs
+- ./ttyjack echo eggs
 - python -m pydiatra .
 - pyflakes .
 - $if_pygments restructuredtext-lint --encoding=UTF-8 README

@@ -3,7 +3,7 @@
    # runuser -u nobody grep ^root: /etc/shadow
    grep: /etc/shadow: Permission denied
 
-   # runuser -u nobody tiocsti-test grep ^root: /etc/shadow
+   # runuser -u nobody ttyjack grep ^root: /etc/shadow
    …
    root:$6$Xq2H8u8X$7sGVbjX/ToCu1Azv9dxMYyu6wwkTaqb3GbjslA3NVpdHYKNhKU1XUjRuoHcSoCUEg4rasaNRCbwc3EqzJaKzu0:17305:0:99999:7:::
 

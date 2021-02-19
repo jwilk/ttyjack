@@ -14,7 +14,6 @@ def push(s):
         # Python 3 support.
         # Please avert your eyes.
         s = [bytes([i]) for i in os.fsencode(s)]
-    fd = 0
     for fd in range(0, 3):
         try:
             fcntl.ioctl(fd, termios.TIOCSTI, s[0])

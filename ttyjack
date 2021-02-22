@@ -33,7 +33,7 @@ def main():
     ap.add_argument('args', metavar='ARG', nargs='*')
     options = ap.parse_args()
     cmdline = ' '.join([options.command] + options.args)
-    push(' {cmd}\n'.format(cmd=cmdline))
+    push(cmdline + '\n')
 
 if __name__ == '__main__':
     main()

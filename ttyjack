@@ -9,31 +9,48 @@ import fcntl
 import os
 import termios
 
-def push(s):
-    if str is not bytes:
-        # Python 3 support.
-        # Please avert your eyes.
-        s = [bytes([i]) for i in os.fsencode(s)]
-    for fd in range(0, 3):
-        try:
-            fcntl.ioctl(fd, termios.TIOCSTI, s[0])
-        except IOError:
-            continue
-        else:
-            break
-    else:
-        fd = os.open('/dev/tty', os.O_RDONLY)
+early_io_error = object()
+
+def push_fd(fd, s):
+    assert isinstance(s[0], bytes)
+    try:
         fcntl.ioctl(fd, termios.TIOCSTI, s[0])
+    except IOError as exc:
+        exc.reason = early_io_error
+        raise
     for ch in s[1:]:
         fcntl.ioctl(fd, termios.TIOCSTI, ch)
+
+def push(s):
+    for fd in range(0, 3):
+        try:
+            push_fd(fd, s)
+        except IOError as exc:
+            if exc.reason is early_io_error:
+                continue
+            else:
+                raise
+        else:
+            return
+    fd = os.open('/dev/tty', os.O_RDONLY)
+    push_fd(fd, s)
+
+def str_to_bytes(s):
+    if isinstance(s, bytes):
+        return s
+    # Python 3 support.
+    # Please avert your eyes.
+    return [bytes([i]) for i in os.fsencode(s)]
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('command', metavar='COMMAND')
     ap.add_argument('args', metavar='ARG', nargs='*')
     options = ap.parse_args()
-    cmdline = ' '.join([options.command] + options.args)
-    push(cmdline + '\n')
+    cmdline = [options.command] + options.args + ['\n']
+    cmdline = ' '.join(cmdline)
+    cmdline = str_to_bytes(cmdline)
+    push(cmdline)
 
 if __name__ == '__main__':
     main()

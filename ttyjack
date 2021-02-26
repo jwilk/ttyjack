@@ -9,6 +9,9 @@ import fcntl
 import os
 import termios
 
+type(b'')  # Python >= 2.6 is required
+type(u'')  # Python 2.X or >= 3.3 is required
+
 early_io_error = object()
 
 def push_fd(fd, s):

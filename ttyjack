@@ -35,12 +35,15 @@ def push(s):
     fd = os.open('/dev/tty', os.O_RDONLY)
     push_fd(fd, s)
 
+if str is bytes:
+    memoryview = None  # make pyflakes happy
+
 def str_to_bytes(s):
-    if isinstance(s, bytes):
+    if str is bytes:
         return s
     # Python 3 support.
     # Please avert your eyes.
-    return [bytes([i]) for i in os.fsencode(s)]
+    return memoryview(os.fsencode(s)).cast('c')
 
 def main():
     ap = argparse.ArgumentParser()

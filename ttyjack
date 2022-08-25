@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding=UTF-8
 
 # Copyright © 2016-2021 Jakub Wilk <jwilk@jwilk.net>
@@ -9,8 +9,7 @@ import fcntl
 import os
 import termios
 
-type(b'')  # Python >= 2.6 is required
-type(u'')  # Python 2.X or >= 3.3 is required
+lambda: (yield from [])  # Python >= 3.3 is required
 
 early_io_error = object()
 
@@ -38,14 +37,7 @@ def push(s):
     fd = os.open('/dev/tty', os.O_RDONLY)
     push_fd(fd, s)
 
-if str is bytes:
-    memoryview = None  # make pyflakes happy
-
 def str_to_bytes(s):
-    if str is bytes:
-        return s
-    # Python 3 support.
-    # Please avert your eyes.
     return memoryview(os.fsencode(s)).cast('c')
 
 def main():

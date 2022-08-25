@@ -21,7 +21,7 @@ def push_fd(fd, s):
     try:
         fcntl.ioctl(fd, termios.TIOCSTI, s[0])
     except IOError as exc:
-        exc.reason = early_io_error
+        exc.__cause__ = early_io_error
         raise
     for ch in s[1:]:
         fcntl.ioctl(fd, termios.TIOCSTI, ch)
@@ -31,7 +31,7 @@ def push(s):
         try:
             push_fd(fd, s)
         except IOError as exc:
-            if exc.reason is early_io_error:
+            if exc.__cause__ is early_io_error:
                 continue
             else:
                 raise
@@ -53,7 +53,7 @@ def paste_fd(fd, s):
     try:
         fcntl.ioctl(fd, termios.TIOCLINUX, arg)
     except IOError as exc:
-        exc.reason = early_io_error
+        exc.__cause__ = early_io_error
         raise
     os.write(fd,
          b'\033[H'  # move cursor to (1, 1)
@@ -74,7 +74,7 @@ def paste(s):
         try:
             paste_fd(fd, s)
         except IOError as exc:
-            if exc.reason is early_io_error:
+            if exc.__cause__ is early_io_error:
                 continue
             else:
                 raise

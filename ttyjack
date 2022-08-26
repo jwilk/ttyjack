@@ -12,7 +12,7 @@ import termios
 
 lambda: (yield from [])  # Python >= 3.3 is required
 
-early_io_error = object()
+early_io_error = Exception()
 
 methods = {}
 

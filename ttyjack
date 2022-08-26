@@ -55,8 +55,8 @@ def paste_fd(fd, s):
         exc.__cause__ = early_io_error
         raise
     os.write(fd,
-         b'\033[H'  # move cursor to (1, 1)
-         b'\033[2J'  # clear screan
+        b'\033[H'  # move cursor to (1, 1)
+        b'\033[2J'  # clear screan
     )
     os.write(fd, s)
     ttyname = os.ttyname(fd)

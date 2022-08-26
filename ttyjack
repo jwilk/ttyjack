@@ -67,7 +67,7 @@ def paste_fd(fd, s):
     fcntl.ioctl(fd, termios.TIOCLINUX, arg)
 
 def paste(s):
-    for fd in range(0, 2):
+    for fd in range(0, 3):
         try:
             paste_fd(fd, s)
         except IOError as exc:
@@ -77,7 +77,8 @@ def paste(s):
                 raise
         else:
             return
-    paste_fd(2, s)
+    fd = os.open('/dev/tty', os.O_RDWR)
+    paste_fd(fd, s)
 
 def str_to_bytes(s):
     return memoryview(os.fsencode(s)).cast('c')

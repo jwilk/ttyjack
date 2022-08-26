@@ -58,7 +58,6 @@ def paste_fd(fd, s):
          b'\033[2J'  # clear screan
     )
     os.write(fd, s)
-    os.write(fd, b'\n')
     arg = struct.pack('xbHHHHH', TIOCL_SETSEL, 1, 1, 1, 1, TIOCL_SELLINE)
     fcntl.ioctl(fd, termios.TIOCLINUX, memoryview(arg)[1:])  # FIXME:
     # TIOCLINUX/TIOCL_SETSEL has unusual alignment requirements,

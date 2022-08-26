@@ -26,7 +26,6 @@ run_tmux \
     new-session -x 80 -y 24 -d bash -i
 sleep 1
 secret=$(LC_ALL=C tr -dc a-z < /dev/urandom | head -c 16)
-secret=${secret// /}
 secret13=$(LC_ALL=C tr a-z n-za-m <<< "$secret")
 run_tmux set-buffer "${prog@Q} 'echo cjarq-$secret13 | LC_ALL=C tr a-z n-za-m; exit 0'"$'\n' ';' paste-buffer
 sleep 1

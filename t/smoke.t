@@ -18,6 +18,11 @@ run_tmux()
     tmux -f /dev/null -S "$tmpdir/tmux.socket" "$@"
 }
 
+quote()
+{
+    printf '%q' "$1"
+}
+
 printf '# '
 run_tmux -V
 run_tmux \
@@ -27,7 +32,7 @@ run_tmux \
 sleep 1
 secret=$(LC_ALL=C tr -dc a-z < /dev/urandom | head -c 16)
 secret13=$(LC_ALL=C tr a-z n-za-m <<< "$secret")
-run_tmux set-buffer "${prog@Q} 'echo cjarq-$secret13 | LC_ALL=C tr a-z n-za-m; exit 0'"$'\n' ';' paste-buffer
+run_tmux set-buffer "$(quote "$prog") 'echo cjarq-$secret13 | LC_ALL=C tr a-z n-za-m; exit 0'"$'\n' ';' paste-buffer
 sleep 1
 out=$(run_tmux capture-pane -p -E 24)
 sed -e 's/^/# T> /' <<< "$out"

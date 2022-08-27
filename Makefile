@@ -17,6 +17,10 @@ install: ttyjack
 	install -d $(DESTDIR)$(bindir)
 	install -m755 $(<) $(DESTDIR)$(bindir)/
 
+.PHONY: test
+test: ttyjack
+	prove -v
+
 .PHONY: clean
 clean:
 	rm ttyjack

@@ -6,19 +6,13 @@ jobs:
   main:
     strategy:
       matrix:
-        include:
-        - python: '3.6'
-          os: ubuntu-18.04
-        - python: '3.7'
-          os: ubuntu-20.04
-        - python: '3.8'
-          os: ubuntu-20.04
-        - python: '3.9'
-          os: ubuntu-20.04
-        - python: '3.10'
-          os: ubuntu-20.04
-        - python: '3.11-dev'
-          os: ubuntu-20.04
+        os:
+        - ubuntu-18.04
+        - ubuntu-20.04
+        - ubuntu-22.04
+        cc:
+        - gcc
+        - clang
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v2
@@ -26,27 +20,18 @@ jobs:
       run: |
         printf 'Apt::Install-Recommends "false";\n' | sudo tee -a /etc/apt/apt.conf
         sudo apt-get update
+    - name: build
+      run: make
     - name: APT install test deps
       run: |
         sudo apt-get install tmux
-    - name: set up Python ${{matrix.python}}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{matrix.python}}
     - name: run tests
       run:
         prove -v
-    - name: run pydiatra
-      run: |
-        python -m pip install pydiatra
-        python -m pydiatra -v .
-    - name: run pyflakes
-      run: |
-        python -m pip install pyflakes
-        python -m pyflakes .
     - name: check README syntax
       run: |
         python3 -m pip install restructuredtext-lint pygments
         rst-lint --level=info --encoding=UTF-8 README
+      if: matrix.os != 'ubuntu-18.04'
 
 # vim:ts=2 sts=2 sw=2 et

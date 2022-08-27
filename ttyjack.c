@@ -120,7 +120,7 @@ static int paste_fd(int fd, char **argv)
     }
     xwrite(fd,
         "\033[H"   // move cursor to (1, 1)
-        "\033[2J"  // clear screan
+        "\033[2J"  // clear screen
     );
     char *tty_name = ttyname(fd);
     if (tty_name == NULL)

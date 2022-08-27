@@ -13,10 +13,14 @@ jobs:
         cc:
         - gcc
         - clang
+        include:
+        - os: macos-11
+          cc: cc
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v2
     - name: set up APT
+      if: startsWith(matrix.os, 'ubuntu-')
       run: |
         printf 'Apt::Install-Recommends "false";\n' | sudo tee -a /etc/apt/apt.conf
         sudo apt-get update
@@ -26,17 +30,22 @@ jobs:
     - name: build
       run:
         make CC=${{matrix.cc}}
-    - name: APT install test deps
+    - name: install test deps
+      if: startsWith(matrix.os, 'ubuntu-')
       run: |
         sudo apt-get install tmux
+    - name: install test deps
+      if: startsWith(matrix.os, 'macos-')
+      run: |
+        brew install tmux
     - name: run tests
       run:
         perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'
         make test
     - name: check README syntax
+      if: startsWith(matrix.os, 'ubuntu-2')
       run: |
         python3 -m pip install restructuredtext-lint pygments
         rst-lint --level=info --encoding=UTF-8 README
-      if: matrix.os != 'ubuntu-18.04'
 
 # vim:ts=2 sts=2 sw=2 et

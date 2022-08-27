@@ -64,7 +64,7 @@ def paste_fd(fd, s):
     if match is None:
         if ttyname == '/dev/tty':
             # Oh well...
-            # FIXME: Use /proc/PID/status to figure the actually tty name.
+            # FIXME: Use /proc/PID/status to figure the actual tty name.
             pass
         else:
             raise RuntimeError(f'unexpected ttyname: {ttyname!r}')

@@ -200,7 +200,7 @@ static void paste(char **argv)
 
 static void paste(char **argv)
 {
-    argv = argv;
+    (void) argv;
     errno = ENOTSUP;
     xerror("-L");
 }

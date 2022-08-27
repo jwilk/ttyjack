@@ -20,8 +20,12 @@ jobs:
       run: |
         printf 'Apt::Install-Recommends "false";\n' | sudo tee -a /etc/apt/apt.conf
         sudo apt-get update
+    - name: check C compiler version
+      run:
+        ${{matrix.cc}} --version
     - name: build
-      run: make
+      run:
+        make CC=${{matrix.cc}}
     - name: APT install test deps
       run: |
         sudo apt-get install tmux

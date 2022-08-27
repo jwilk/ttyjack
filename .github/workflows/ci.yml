@@ -27,7 +27,7 @@ jobs:
         sudo apt-get install tmux
     - name: run tests
       run:
-        prove -v
+        make test
     - name: check README syntax
       run: |
         python3 -m pip install restructuredtext-lint pygments

@@ -31,6 +31,7 @@ jobs:
         sudo apt-get install tmux
     - name: run tests
       run:
+        perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'
         make test
     - name: check README syntax
       run: |

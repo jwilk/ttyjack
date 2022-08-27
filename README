@@ -1,5 +1,12 @@
 .. code:: console
 
+   # ttyjack --help
+   Usage: ttyjack [-L] COMMAND [ARG...]
+
+   Options:
+     -L          use TIOCLINUX
+     -h, --help  display this help and exit
+
    # runuser -u nobody grep ^root: /etc/shadow
    grep: /etc/shadow: Permission denied
 

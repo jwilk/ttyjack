@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,16 +94,14 @@ static void push(char **argv)
 
 #if defined(__linux__)
 
-static void xwrite(int fd, const char *s)
+static void xprintf(int fd, const char *fmt, ...)
 {
-    size_t n = strlen(s);
-    ssize_t m = write(fd, s, n);
-    if (m >= 0 && n != (size_t) m) {
-        errno = EIO;
-        m = -1;
-    }
-    if (m < 0)
-        xerror("write()");
+    va_list ap;
+    va_start(ap, fmt);
+    int rc = vdprintf(fd, fmt, ap);
+    if (rc < 0)
+        xerror("dprintf()");
+    va_end(ap);
 }
 
 static int paste_fd(int fd, char **argv)
@@ -119,7 +118,7 @@ static int paste_fd(int fd, char **argv)
             xerror("TIOCLINUX");
         return -1;
     }
-    xwrite(fd,
+    xprintf(fd, "%s",
         "\033[H"   // move cursor to (1, 1)
         "\033[2J"  // clear screen
     );
@@ -143,9 +142,7 @@ static int paste_fd(int fd, char **argv)
                     errno = ERANGE;
             }
             if (errno == 0) {
-                int rc = dprintf(fd, "\033[12;%lu]", n);
-                if (rc < 0)
-                    xerror("dprintf()");
+                xprintf(fd, "\033[12;%lu]", n);
                 tty_name = NULL;
             }
         }
@@ -155,8 +152,8 @@ static int paste_fd(int fd, char **argv)
         exit(1);
     }
     for (; *argv; argv++) {
-        xwrite(fd, *argv);
-        xwrite(fd, argv[1] ? " " : "\n");
+        xprintf(fd, "%s", *argv);
+        xprintf(fd, "%c", argv[1] ? ' ' : '\n');
     }
     data.subcode = TIOCL_SETSEL;
     data.sel.xs = 1;

@@ -47,5 +47,10 @@ jobs:
       run: |
         python3 -m pip install restructuredtext-lint pygments
         rst-lint --level=info --encoding=UTF-8 README
+    - name: run cppcheck
+      if: matrix.cc == 'gcc'
+      run: |
+        sudo apt-get install cppcheck
+        cppcheck --error-exitcode=1 *.c
 
 # vim:ts=2 sts=2 sw=2 et

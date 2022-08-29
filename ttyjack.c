@@ -142,7 +142,7 @@ static int paste_fd(int fd, char **argv)
                     errno = ERANGE;
             }
             if (errno == 0) {
-                int rc = dprintf(fd, "\033[12;%hhu]", (unsigned char) n);
+                int rc = dprintf(fd, "\033[12;%lu]", n);
                 if (rc < 0)
                     xerror("dprintf()");
                 tty_name = NULL;

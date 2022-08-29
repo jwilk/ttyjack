@@ -14,6 +14,7 @@
 
 #if defined(__linux__)
 #include <linux/tiocl.h>
+#include <linux/vt.h>
 #endif
 
 #define PROGRAM_NAME "ttyjack"
@@ -138,7 +139,7 @@ static int paste_fd(int fd, char **argv)
             if (errno == 0) {
                 if (*endptr != '\0')
                     errno = EINVAL;
-                if (n > 0xFF)
+                if (n > MAX_NR_CONSOLES)
                     errno = ERANGE;
             }
             if (errno == 0) {

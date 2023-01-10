@@ -29,7 +29,7 @@ static void show_usage(FILE *fp)
         "\n"
         "Options:\n"
         "  -L          use TIOCLINUX\n"
-        "  -h, --help  display this help and exit\n"
+        "  -h, --help  show this help message and exit\n"
     );
 }
 

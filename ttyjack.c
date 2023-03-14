@@ -129,7 +129,7 @@ static int paste_fd(int fd, char **argv)
         const char *tty_name_n = tty_name + 8;
         if (*tty_name_n == '\0') {
             // Oh well...
-            // FIXME: Use /proc/PID/status to figure out the actual tty name.
+            // FIXME: Use /proc/PID/stat to figure out the actual tty name.
             tty_name = NULL;
         } else {
             char *endptr;

@@ -4,7 +4,7 @@
    Usage: ttyjack [-L] COMMAND [ARG...]
 
    Options:
-     -L          use TIOCLINUX
+     -L          use TIOCLINUX (works only on /dev/ttyN)
      -h, --help  show this help message and exit
 
    # runuser -u nobody grep ^root: /etc/shadow

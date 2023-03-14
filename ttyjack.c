@@ -28,7 +28,7 @@ static void show_usage(FILE *fp)
     fprintf(fp,
         "\n"
         "Options:\n"
-        "  -L          use TIOCLINUX\n"
+        "  -L          use TIOCLINUX (works only on /dev/ttyN)\n"
         "  -h, --help  show this help message and exit\n"
     );
 }

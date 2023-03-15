@@ -120,10 +120,16 @@ static int get_tty_n(int fd)
     switch (sb_major) {
         case TTYAUX_MAJOR:
             if (sb_minor == 0) {
-                // Oh well...
-                // FIXME: Use /proc/PID/stat to figure out
-                // what the underlying device is.
-                return 0;
+                unsigned int ctty_dev;
+                rc = ioctl(fd, TIOCGDEV, &ctty_dev);
+                if (rc < 0)
+                    xerror("TIOCGDEV");
+                if (major(ctty_dev) == TTY_MAJOR) {
+                    int ctty_minor = minor(ctty_dev);
+                    if ((ctty_minor >= MIN_NR_CONSOLES) && (ctty_minor <= MAX_NR_CONSOLES))
+                        return ctty_minor;
+                }
+                return -1;
             }
             break;
         case TTY_MAJOR:

@@ -150,8 +150,16 @@ static int paste_fd(int fd, char **argv)
     data.subcode = TIOCL_GETMOUSEREPORTING;
     int rc = ioctl(fd, TIOCLINUX, &data.subcode);
     if (rc < 0) {
-        if (fd > 2)
+        if (fd > 2) {
+            if (errno == ENOTTY) {
+                int tty_n = get_tty_n(fd);
+                if (tty_n < 0) {
+                    fprintf(stderr, "%s -L must be run on /dev/ttyN\n", PROGRAM_NAME);
+                    exit(1);
+                }
+            }
             xerror("TIOCLINUX");
+        }
         return -1;
     }
     xprintf(fd, "%s",

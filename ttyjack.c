@@ -14,6 +14,9 @@
 #include <unistd.h>
 
 #if defined(__linux__)
+#include <sys/stat.h>
+#include <sys/sysmacros.h>
+#include <linux/major.h>
 #include <linux/tiocl.h>
 #include <linux/vt.h>
 #endif
@@ -104,6 +107,33 @@ static void xprintf(int fd, const char *fmt, ...)
     va_end(ap);
 }
 
+static int get_tty_n(int fd)
+{
+    struct stat sb;
+    int rc = fstat(fd, &sb);
+    if (rc < 0)
+        xerror("fstat()");
+    if ((sb.st_mode & S_IFMT) != S_IFCHR)
+        return -1;
+    unsigned int sb_major = major(sb.st_rdev);
+    unsigned int sb_minor = minor(sb.st_rdev);
+    switch (sb_major) {
+        case TTYAUX_MAJOR:
+            if (sb_minor == 0) {
+                // Oh well...
+                // FIXME: Use /proc/PID/stat to figure out
+                // what the underlying device is.
+                return 0;
+            }
+            break;
+        case TTY_MAJOR:
+            if ((sb_minor >= MIN_NR_CONSOLES) && (sb_minor <= MAX_NR_CONSOLES))
+                return sb_minor;
+            break;
+    }
+    return -1;
+}
+
 static int paste_fd(int fd, char **argv)
 {
     struct {
@@ -122,35 +152,16 @@ static int paste_fd(int fd, char **argv)
         "\033[H"   // move cursor to (1, 1)
         "\033[2J"  // clear screen
     );
-    char *tty_name = ttyname(fd);
-    if (tty_name == NULL)
-        xerror("ttyname()");
-    if (strncmp(tty_name, "/dev/tty", 8) == 0) {
-        const char *tty_name_n = tty_name + 8;
-        if (*tty_name_n == '\0') {
-            // Oh well...
-            // FIXME: Use /proc/PID/stat to figure out the actual tty name.
-            tty_name = NULL;
-        } else {
-            char *endptr;
-            errno = 0;
-            unsigned long n = strtoul(tty_name_n, &endptr, 10);
-            if (errno == 0) {
-                if (*endptr != '\0')
-                    errno = EINVAL;
-                if (n > MAX_NR_CONSOLES)
-                    errno = ERANGE;
-            }
-            if (errno == 0) {
-                xprintf(fd, "\033[12;%lu]", n);
-                tty_name = NULL;
-            }
-        }
-    }
-    if (tty_name != NULL) {
-        fprintf(stderr, "%s: unexpected tty name: %s\n", PROGRAM_NAME, tty_name);
+    int tty_n = get_tty_n(fd);
+    if (tty_n < 0) {
+        char *tty_name = ttyname(fd);
+        if (tty_name == NULL)
+            xerror("ttyname()");
+        fprintf(stderr, "%s: unexpected device: %s\n", PROGRAM_NAME, tty_name);
         exit(1);
     }
+    if (tty_n > 0)
+        xprintf(fd, "\033[12;%d]", tty_n);
     for (; *argv; argv++) {
         xprintf(fd, "%s", *argv);
         xprintf(fd, "%c", argv[1] ? ' ' : '\n');

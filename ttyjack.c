@@ -161,13 +161,13 @@ static int paste_fd(int fd, char **argv)
     data.sel.ys = 1;
     data.sel.ye = 1;
     data.sel.sel_mode = TIOCL_SELLINE;
-    rc = ioctl(0, TIOCLINUX, &data.subcode);
+    rc = ioctl(fd, TIOCLINUX, &data.subcode);
     if (rc < 0) {
         perror("TIOCL_SETSEL");
         return 1;
     }
     data.subcode = TIOCL_PASTESEL;
-    rc = ioctl(0, TIOCLINUX, &data.subcode);
+    rc = ioctl(fd, TIOCLINUX, &data.subcode);
     if (rc < 0) {
         perror("TIOCL_PASTESEL");
         return 1;

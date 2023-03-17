@@ -45,9 +45,24 @@ static void xerror(const char *context)
     exit(EXIT_FAILURE);
 }
 
+static int ioctl64(int fd, unsigned long request, void *arg)
+{
+#if __linux__
+    // Linux truncates the ioctl request code to 32 bits,
+    // but only _after_ the seccomp check:
+    // https://bugs.launchpad.net/snapd/+bug/1812973
+    // Let's set the high bits in hope to get around seccomp filters
+    // that don't take that into account.
+    unsigned long request64 = request | (~0UL ^ ~0U);
+    return ioctl(fd, request64, arg);
+#else
+    return ioctl(fd, request, arg);
+#endif
+}
+
 static int push_fd_c(int fd, char c, size_t *i)
 {
-    int rc = ioctl(fd, TIOCSTI, &c);
+    int rc = ioctl64(fd, TIOCSTI, &c);
     if (rc < 0) {
         if (*i == 0)
             return -1;
@@ -148,7 +163,7 @@ static int paste_fd(int fd, char **argv)
         struct tiocl_selection sel;
     } data;
     data.subcode = TIOCL_GETMOUSEREPORTING;
-    int rc = ioctl(fd, TIOCLINUX, &data.subcode);
+    int rc = ioctl64(fd, TIOCLINUX, &data.subcode);
     if (rc < 0) {
         if (fd > 2) {
             if (errno == ENOTTY) {
@@ -186,13 +201,13 @@ static int paste_fd(int fd, char **argv)
     data.sel.ys = 1;
     data.sel.ye = 1;
     data.sel.sel_mode = TIOCL_SELLINE;
-    rc = ioctl(fd, TIOCLINUX, &data.subcode);
+    rc = ioctl64(fd, TIOCLINUX, &data.subcode);
     if (rc < 0) {
         perror("TIOCL_SETSEL");
         return 1;
     }
     data.subcode = TIOCL_PASTESEL;
-    rc = ioctl(fd, TIOCLINUX, &data.subcode);
+    rc = ioctl64(fd, TIOCLINUX, &data.subcode);
     if (rc < 0) {
         perror("TIOCL_PASTESEL");
         return 1;

@@ -7,10 +7,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: ubuntu-18.04
-          cc: gcc
-        - os: ubuntu-18.04
-          cc: clang
         - os: ubuntu-20.04
           cc: gcc
         - os: ubuntu-20.04
@@ -48,7 +44,7 @@ jobs:
         perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'
         make test
     - name: check README syntax
-      if: startsWith(matrix.os, 'ubuntu-2')
+      if: startsWith(matrix.os, 'ubuntu-')
       run: |
         python3 -m pip install restructuredtext-lint pygments
         rst-lint --level=info --encoding=UTF-8 README

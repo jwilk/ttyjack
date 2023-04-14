@@ -231,7 +231,8 @@ static void paste(char **argv)
     if (fd < 0)
         xerror("dup2()");
     rc = paste_fd(fd, argv);
-    assert(rc == 0);
+    if (rc < 0)
+        exit(EXIT_FAILURE);
 }
 
 #else

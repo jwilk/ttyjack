@@ -170,7 +170,7 @@ static int paste_fd(int fd, char **argv)
                 int tty_n = get_tty_n(fd);
                 if (tty_n < 0) {
                     fprintf(stderr, "%s -L must be run on /dev/ttyN\n", PROGRAM_NAME);
-                    exit(1);
+                    exit(EXIT_FAILURE);
                 }
             }
             xerror("TIOCLINUX");
@@ -187,7 +187,7 @@ static int paste_fd(int fd, char **argv)
         if (tty_name == NULL)
             xerror("ttyname()");
         fprintf(stderr, "%s: unexpected device: %s\n", PROGRAM_NAME, tty_name);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     if (tty_n > 0)
         xprintf(fd, "\033[12;%d]", tty_n);

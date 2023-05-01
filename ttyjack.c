@@ -140,7 +140,7 @@ static int get_tty_n(int fd)
                 if (rc < 0)
                     xerror("TIOCGDEV");
                 if (major(ctty_dev) == TTY_MAJOR) {
-                    int ctty_minor = minor(ctty_dev);
+                    unsigned int ctty_minor = minor(ctty_dev);
                     if ((ctty_minor >= MIN_NR_CONSOLES) && (ctty_minor <= MAX_NR_CONSOLES))
                         return ctty_minor;
                 }

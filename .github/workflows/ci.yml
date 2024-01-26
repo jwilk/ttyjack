@@ -19,7 +19,7 @@ jobs:
           cc: cc
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: set up APT
       if: startsWith(matrix.os, 'ubuntu-')
       run: |

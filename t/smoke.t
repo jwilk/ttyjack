@@ -23,6 +23,7 @@ quote()
     printf '%q' "$1"
 }
 
+stat "$prog" > /dev/null
 printf '# '
 run_tmux -V
 run_tmux \

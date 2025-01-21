@@ -15,8 +15,6 @@ jobs:
           cc: gcc
         - os: ubuntu-22.04
           cc: clang
-        - os: macos-12
-          cc: cc
         - os: macos-13
           cc: cc
         - os: macos-14

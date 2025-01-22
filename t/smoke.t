@@ -38,12 +38,24 @@ run_tmux set-buffer "$(quote "$prog") 'echo cjarq-$secret13 | LC_ALL=C tr a-z n-
 sleep 1
 out=$(run_tmux capture-pane -p -E 24)
 sed -e 's/^/# T> /' <<< "$out"
-case $out in
-    *"pwned-$secret"*)
-        echo ok 1;;
-    *)
-        echo not ok 1;;
-esac
+if [[ -z ${TTYJACK_TEST_XFAIL-} ]]
+then
+    case $out in
+        *"pwned-$secret"*)
+            echo ok 1;;
+        *)
+            echo not ok 1;;
+    esac
+else
+    case $out in
+        *"pwned-$secret"*)
+            echo not ok 1;;
+        *'TIOCSTI: Input/output error'*)
+            echo ok 1;;
+        *)
+            echo not ok 1;;
+    esac
+fi
 run_tmux kill-session
 rm -rf "$tmpdir"
 

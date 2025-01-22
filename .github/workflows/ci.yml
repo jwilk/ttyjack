@@ -15,6 +15,12 @@ jobs:
           cc: gcc
         - os: ubuntu-22.04
           cc: clang
+        - os: ubuntu-24.04
+          cc: gcc
+          xfail: true  # CONFIG_LEGACY_TIOCSTI=n
+        - os: ubuntu-24.04
+          cc: clang
+          xfail: true  # CONFIG_LEGACY_TIOCSTI=n
         - os: macos-13
           cc: cc
         - os: macos-14
@@ -46,6 +52,10 @@ jobs:
       run: |
         uname -a
         grep -w CONFIG_LEGACY_TIOCSTI /boot/config-$(uname -r) || true
+    - name: expect test failures
+      if: matrix.xfail
+      run:
+        echo "TTYJACK_TEST_XFAIL=1" >> $GITHUB_ENV
     - name: run tests
       run:
         perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'

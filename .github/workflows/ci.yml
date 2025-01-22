@@ -41,6 +41,11 @@ jobs:
       if: startsWith(matrix.os, 'macos-')
       run: |
         brew install tmux
+    - name: print Linux config info
+      if: startsWith(matrix.os, 'ubuntu-')
+      run: |
+        uname -a
+        grep -w CONFIG_LEGACY_TIOCSTI /boot/config-$(uname -r) || true
     - name: run tests
       run:
         perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'

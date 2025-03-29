@@ -14,10 +14,8 @@ jobs:
           cc: clang
         - os: ubuntu-24.04
           cc: gcc
-          xfail: true  # CONFIG_LEGACY_TIOCSTI=n
         - os: ubuntu-24.04
           cc: clang
-          xfail: true  # CONFIG_LEGACY_TIOCSTI=n
         - os: macos-13
           cc: cc
         - os: macos-14
@@ -49,10 +47,7 @@ jobs:
       run: |
         uname -a
         grep -w CONFIG_LEGACY_TIOCSTI /boot/config-$(uname -r) || true
-    - name: expect test failures
-      if: matrix.xfail
-      run:
-        echo "TTYJACK_TEST_XFAIL=1" >> $GITHUB_ENV
+        if grep -qx '# CONFIG_LEGACY_TIOCSTI is not set' /boot/config-$(uname -r); then echo "TTYJACK_TEST_XFAIL=1" >> $GITHUB_ENV; fi
     - name: run tests
       run:
         perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'

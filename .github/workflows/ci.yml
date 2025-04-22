@@ -47,7 +47,17 @@ jobs:
       run: |
         uname -a
         grep -w CONFIG_LEGACY_TIOCSTI /boot/config-$(uname -r) || true
-        if grep -qx '# CONFIG_LEGACY_TIOCSTI is not set' /boot/config-$(uname -r); then echo "TTYJACK_TEST_XFAIL=1" >> $GITHUB_ENV; fi
+        (printf 'LEGACY_TIOCSTI='; sysctl -n dev.tty.legacy_tiocsti) >> $GITHUB_ENV
+    - name: run tests with TIOCSTI disabled, expecting failure
+      if: startsWith(matrix.os, 'ubuntu-') && env.LEGACY_TIOCSTI == 0
+      run:
+        TTYJACK_TEST_XFAIL=1
+        perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'
+        make test
+    - name: re-enable TIOCSTI
+      if: startsWith(matrix.os, 'ubuntu-') && env.LEGACY_TIOCSTI == 0
+      run:
+        sudo sysctl -w dev.tty.legacy_tiocsti=1
     - name: run tests
       run:
         perl -Mautodie=exec -e '$SIG{PIPE}="DEFAULT"; exec @ARGV'

@@ -22,6 +22,10 @@ jobs:
           cc: clang
         - os: macos-14
           cc: cc
+        - os: macos-15
+          cc: cc
+        - os: macos-26
+          cc: cc
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v4
